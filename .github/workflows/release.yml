@@ -13,7 +13,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
       - run: pwsh tools/scripts/package.ps1
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             artifacts/archtool.zip
