@@ -1,12 +1,45 @@
 using ArchitecturePatterns.SharedKernel;
-using ArchitecturePatterns.Testing;
+using Xunit;
 
-var tests = new List<TestCase>();
-for (var i = 1; i <= 4; i++)
-    tests.Add(new("Security", $"audit trail redacts secret {i}", () => { var audit = new InMemoryAuditTrail(); audit.Record("payment", "1", "token password secret"); var details = audit.List().Single().Details; Check.True(!details.Contains("token", StringComparison.OrdinalIgnoreCase), "token should not leak"); return Task.CompletedTask; }));
-for (var i = 1; i <= 3; i++)
-    tests.Add(new("Security", $"invalid payload returns controlled error {i}", async () => { var service = new CommerceService(new CommerceState(), "security"); var result = await service.CreateCustomer(new("", "invalid"), CancellationToken.None); Check.Equal(ErrorCodes.Validation, result.Error.Code, "validation code should be stable"); }));
-for (var i = 1; i <= 3; i++)
-    tests.Add(new("Security", $"external order response is dto {i}", async () => { var service = new CommerceService(new CommerceState(), "security"); var c = await service.CreateCustomer(new("Safe", "safe@example.test"), CancellationToken.None); var o = await service.CreateOrder(new(c.Value!.Id), CancellationToken.None); var response = await service.GetOrder(o.Value!.Id, CancellationToken.None); Check.True(response.Value is OrderResponse, "response should be DTO"); }));
+namespace ArchitecturePatterns.SecurityTests;
 
-return await Check.Run(tests);
+public sealed class SecurityBoundaryTests
+{
+    [Theory]
+    [InlineData("token")]
+    [InlineData("password")]
+    [InlineData("secret")]
+    [InlineData("api-key")]
+    public void AuditTrailRedactsSecrets(string sensitiveWord)
+    {
+        var audit = new InMemoryAuditTrail();
+        audit.Record("payment", "1", $"contains {sensitiveWord}");
+        var details = audit.List().Single().Details;
+        Assert.DoesNotContain(sensitiveWord, details, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("invalid")]
+    [InlineData("missing-at")]
+    public async Task InvalidPayloadReturnsControlledError(string email)
+    {
+        var service = new CommerceService(new CommerceState(), "security");
+        var result = await service.CreateCustomer(new("", email), CancellationToken.None);
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorCodes.Validation, result.Error.Code);
+    }
+
+    [Theory]
+    [InlineData("security-1")]
+    [InlineData("security-2")]
+    [InlineData("security-3")]
+    public async Task ExternalOrderResponseIsDto(string architecture)
+    {
+        var service = new CommerceService(new CommerceState(), architecture);
+        var customer = await service.CreateCustomer(new("Safe", "safe@example.test"), CancellationToken.None);
+        var order = await service.CreateOrder(new(customer.Value!.Id), CancellationToken.None);
+        var response = await service.GetOrder(order.Value!.Id, CancellationToken.None);
+        Assert.IsType<OrderResponse>(response.Value);
+    }
+}

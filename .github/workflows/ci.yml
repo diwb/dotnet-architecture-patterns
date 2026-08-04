@@ -14,11 +14,7 @@ jobs:
       - run: dotnet restore ArchitecturePatterns.slnx
       - run: dotnet build ArchitecturePatterns.slnx -c Release --no-restore
       - run: dotnet format ArchitecturePatterns.slnx --verify-no-changes --verbosity minimal
-      - run: dotnet run --project tests/ArchitecturePatterns.UnitTests -c Release
-      - run: dotnet run --project tests/ArchitecturePatterns.IntegrationTests -c Release
-      - run: dotnet run --project tests/ArchitecturePatterns.ArchitectureTests -c Release
-      - run: dotnet run --project tests/ArchitecturePatterns.ContractTests -c Release
-      - run: dotnet run --project tests/ArchitecturePatterns.SecurityTests -c Release
+      - run: dotnet test ArchitecturePatterns.slnx -c Release --no-build --collect:"XPlat Code Coverage" --results-directory TestResults
       - run: pwsh tools/scripts/coverage-gate.ps1
       - run: pwsh tools/scripts/check-required-files.ps1
       - run: pwsh tools/scripts/check-secrets.ps1
@@ -26,6 +22,7 @@ jobs:
       - run: docker compose config
       - run: docker compose build
       - run: docker compose up -d
+      - run: curl --fail --retry 10 --retry-delay 3 http://localhost:8080/health/live
       - run: dotnet run --project src/ArchitecturePatterns.Cli -- run-scenario checkout --architecture clean --json
       - run: docker compose down -v
       - run: pwsh tools/scripts/package.ps1
@@ -33,4 +30,3 @@ jobs:
         with:
           name: release-artifacts
           path: artifacts/
-

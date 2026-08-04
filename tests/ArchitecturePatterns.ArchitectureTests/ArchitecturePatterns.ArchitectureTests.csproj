@@ -1,5 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/CleanArchitecture/CleanArchitecture.Domain/CleanArchitecture.Domain.csproj" />
     <ProjectReference Include="../../src/CleanArchitecture/CleanArchitecture.Application/CleanArchitecture.Application.csproj" />
@@ -7,3 +16,4 @@
     <ProjectReference Include="../../src/Shared/ArchitecturePatterns.Testing/ArchitecturePatterns.Testing.csproj" />
   </ItemGroup>
 </Project>
+

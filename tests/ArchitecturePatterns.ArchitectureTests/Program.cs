@@ -1,29 +1,55 @@
 using System.Reflection;
-using ArchitecturePatterns.Testing;
 using CleanArchitecture.Application;
 using CleanArchitecture.Domain;
 using Hexagonal.Application;
+using Xunit;
 
-var tests = new List<TestCase>();
-string[] cleanDomainForbidden = ["CleanArchitecture.Infrastructure", "CleanArchitecture.Api", "Microsoft.AspNetCore"];
-string[] cleanApplicationForbidden = ["CleanArchitecture.Api"];
-string[] hexApplicationForbidden = ["Hexagonal.Adapters.InMemory", "Hexagonal.Adapters.Sqlite", "Hexagonal.Api"];
+namespace ArchitecturePatterns.ArchitectureTests;
 
-for (var i = 1; i <= 8; i++)
-    tests.Add(new("Architecture", $"clean domain dependency rule {i}", () => AssertNoReferences(typeof(CleanArchitectureDomainMarker).Assembly, cleanDomainForbidden)));
-for (var i = 1; i <= 7; i++)
-    tests.Add(new("Architecture", $"clean application dependency rule {i}", () => AssertNoReferences(typeof(CleanCommerce).Assembly, cleanApplicationForbidden)));
-for (var i = 1; i <= 7; i++)
-    tests.Add(new("Architecture", $"hexagonal application avoids adapters {i}", () => AssertNoReferences(typeof(ICheckoutUseCase).Assembly, hexApplicationForbidden)));
-
-tests.Add(new("Architecture", "composition root is outside clean application", () => AssertNoReferences(typeof(CleanCommerce).Assembly, ["Microsoft.AspNetCore"])));
-
-return await Check.Run(tests);
-
-static Task AssertNoReferences(Assembly assembly, string[] forbidden)
+public sealed class DependencyRuleTests
 {
-    var refs = assembly.GetReferencedAssemblies().Select(x => x.Name ?? string.Empty).ToArray();
-    foreach (var rule in forbidden)
-        Check.True(!refs.Any(x => x.Contains(rule, StringComparison.OrdinalIgnoreCase)), $"{assembly.GetName().Name} references {rule}");
-    return Task.CompletedTask;
+    private static readonly string[] CleanDomainForbidden = ["CleanArchitecture.Infrastructure", "CleanArchitecture.Api", "Microsoft.AspNetCore"];
+    private static readonly string[] CleanApplicationForbidden = ["CleanArchitecture.Api"];
+    private static readonly string[] HexApplicationForbidden = ["Hexagonal.Adapters.InMemory", "Hexagonal.Adapters.Sqlite", "Hexagonal.Api"];
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    [InlineData(7)]
+    [InlineData(8)]
+    public void CleanDomainDoesNotReferenceOuterLayers(int _) => AssertNoReferences(typeof(CleanArchitectureDomainMarker).Assembly, CleanDomainForbidden);
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    [InlineData(7)]
+    public void CleanApplicationDoesNotReferenceApi(int _) => AssertNoReferences(typeof(CleanCommerce).Assembly, CleanApplicationForbidden);
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [InlineData(6)]
+    [InlineData(7)]
+    public void HexagonalApplicationDoesNotReferenceAdapters(int _) => AssertNoReferences(typeof(ICheckoutUseCase).Assembly, HexApplicationForbidden);
+
+    [Fact]
+    public void CompositionRootIsOutsideCleanApplication() => AssertNoReferences(typeof(CleanCommerce).Assembly, ["Microsoft.AspNetCore"]);
+
+    private static void AssertNoReferences(Assembly assembly, string[] forbidden)
+    {
+        var refs = assembly.GetReferencedAssemblies().Select(x => x.Name ?? string.Empty).ToArray();
+        foreach (var rule in forbidden)
+            Assert.DoesNotContain(refs, x => x.Contains(rule, StringComparison.OrdinalIgnoreCase));
+    }
 }

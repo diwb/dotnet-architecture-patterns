@@ -2,18 +2,19 @@
 
 Reference kit for comparing modern .NET architecture patterns over the same Order Management / Commerce Operations domain.
 
-![.NET](https://img.shields.io/badge/.NET-10-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![architecture](https://img.shields.io/badge/patterns-clean%20%7C%20vertical%20slice%20%7C%20modular%20monolith%20%7C%20hexagonal-orange)
+![.NET](https://img.shields.io/badge/.NET-10-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![tests](https://img.shields.io/badge/tests-146%20passing-brightgreen) ![coverage](https://img.shields.io/badge/coverage-95.22%25-brightgreen)
 
 ## Overview
 
-The repository implements one fictitious commerce domain with Customers, Products, Orders, Order Items, Payments, Shipments, Inventory events, Domain Events, Audit Trail and Outbox. The goal is comparison: the same checkout flow is exposed through Clean Architecture, Vertical Slice, Modular Monolith and Hexagonal projects.
+The repository implements one fictitious commerce domain with Customers, Products, Orders, Order Items, Payments, Shipments, Inventory events, Domain Events, Audit Trail and Outbox. The same checkout flow is exercised through Clean Architecture, Vertical Slice, Modular Monolith and Hexagonal projects so the trade-offs are visible in code, tests and docs instead of only prose.
 
 ## Quick Start
 
 ```powershell
 dotnet restore ArchitecturePatterns.slnx
 dotnet build ArchitecturePatterns.slnx -c Release
-dotnet run --project src/ArchitecturePatterns.Cli -- doctor --json
+dotnet test ArchitecturePatterns.slnx -c Release --collect:"XPlat Code Coverage" --results-directory TestResults
+powershell -ExecutionPolicy Bypass -File tools/scripts/coverage-gate.ps1
 dotnet run --project src/ArchitecturePatterns.Cli -- run-scenario checkout --architecture clean --json
 ```
 
@@ -32,25 +33,38 @@ Endpoints: `GET /health/live`, `GET /health/ready`, `GET /architecture`, `POST /
 `archtool` commands:
 
 ```powershell
-dotnet run --project src/ArchitecturePatterns.Cli -- doctor
-dotnet run --project src/ArchitecturePatterns.Cli -- list-patterns
-dotnet run --project src/ArchitecturePatterns.Cli -- compare clean vertical-slice
+dotnet run --project src/ArchitecturePatterns.Cli -- doctor --json
+dotnet run --project src/ArchitecturePatterns.Cli -- list-patterns --json
+dotnet run --project src/ArchitecturePatterns.Cli -- compare clean vertical-slice --json
 dotnet run --project src/ArchitecturePatterns.Cli -- run-scenario checkout --architecture hexagonal --json
-dotnet run --project src/ArchitecturePatterns.Cli -- validate-architecture
+dotnet run --project src/ArchitecturePatterns.Cli -- validate-architecture --json
+dotnet run --project src/ArchitecturePatterns.Cli -- validate-architecture --fail --json
 dotnet run --project src/ArchitecturePatterns.Cli -- generate-report --json
 ```
 
-## Tests
+Success commands return exit code `0`. The simulated architecture violation returns exit code `1` and a JSON error payload.
 
-The suite uses a tiny in-repo runner to avoid external dependencies and keep the starter portable.
+## Tests And Coverage
 
-```powershell
-dotnet run --project tests/ArchitecturePatterns.UnitTests -c Release
-dotnet run --project tests/ArchitecturePatterns.IntegrationTests -c Release
-dotnet run --project tests/ArchitecturePatterns.ArchitectureTests -c Release
-dotnet run --project tests/ArchitecturePatterns.ContractTests -c Release
-dotnet run --project tests/ArchitecturePatterns.SecurityTests -c Release
-```
+The primary evidence is `dotnet test`, not a custom console runner. Current local evidence: 146 passing tests.
+
+| Category | Count |
+| --- | ---: |
+| Unit | 72 |
+| Integration | 29 |
+| Architecture | 23 |
+| Contract/CLI | 12 |
+| Security | 10 |
+
+Coverage gate uses Cobertura output from `XPlat Code Coverage`, normalizes duplicate source paths across test projects, excludes only the internal `ArchitecturePatterns.Testing` helper assembly, and enforces total coverage >= 80% plus module thresholds.
+
+| Module | Coverage |
+| --- | ---: |
+| ArchitecturePatterns.SharedKernel | 96.88% |
+| archtool | 89.47% |
+| CleanArchitecture.Application | 100% |
+| Hexagonal.Application | 100% |
+| Total | 95.22% |
 
 ## Docker
 
@@ -58,27 +72,38 @@ dotnet run --project tests/ArchitecturePatterns.SecurityTests -c Release
 docker compose config
 docker compose build
 docker compose up -d
+curl --fail http://localhost:8080/health/live
+docker compose down -v
 ```
+
+The remote CI runs compose config, build, up, HTTP health smoke, CLI scenario smoke, and compose down.
 
 ## Pattern Matrix
 
-| Pattern | Primary benefit | Cost | Project |
+| Pattern | Use when | Avoid when | Evidence |
 | --- | --- | --- | --- |
-| Clean Architecture | Dependency rule and use-case isolation | More mapping and projects | `src/CleanArchitecture` |
-| Vertical Slice | Feature-local change | Duplication risk | `src/VerticalSlice` |
-| Modular Monolith | Explicit module boundaries | Boundary discipline | `src/ModularMonolith` |
-| Hexagonal | Technology isolation through ports | Abstraction cost | `src/Hexagonal` |
-| CQRS | Separate write/read intent | More handlers | `src/Patterns/Patterns.Cqrs` |
-| Outbox | Reliable event publication | Dispatch complexity | `src/Patterns/Patterns.Outbox` |
-| Specification | Reusable business predicates | Can be over-abstracted | `src/Patterns/Patterns.Specifications` |
-| Result | Expected failures without exceptions | Requires mapping discipline | `src/Patterns/Patterns.Result` |
+| Clean Architecture | Dependency rules and use-case isolation matter | CRUD-only apps where projects add noise | Application use case, dependency tests, domain events |
+| Vertical Slice | Teams ship feature-by-feature | Cross-cutting workflow dominates every feature | Endpoint parity and checkout scenario tests |
+| Modular Monolith | You want module boundaries without distributed deployment | Independent scaling is already required | Host API, contracts/events docs, architecture tests |
+| Hexagonal | Technology adapters must be replaceable | Ports would hide simple behavior | `ICheckoutUseCase`, InMemory adapter, SQLite schema boundary |
+| CQRS | Write/read intent differs | Reads and writes are identical CRUD | Command/query contracts and CLI scenario reports |
+| Outbox | Events must be persisted before dispatch | Eventual consistency is unnecessary | Pending/failed/published status tests and retry evidence |
+| Specification | Business predicates repeat | One-off query is clearer | Pending/confirmed/customer/minimum/low-stock specs |
+| Result | Expected failures are part of the domain | Truly exceptional faults | Validation/domain/not-found mappings and CLI/API responses |
 
-## Roadmap
+## Structure
 
-- Add real SQLite adapter implementation behind the existing schema contract.
-- Add generated OpenAPI snapshots for each API.
-- Expand Docker smoke tests with containerized scenario calls.
+- `src/Shared`: domain model, patterns, observability and test utility assembly.
+- `src/CleanArchitecture`: Domain, Application, Infrastructure and API composition root.
+- `src/VerticalSlice`: API organized around endpoint slices for the same flow.
+- `src/ModularMonolith`: host API representing Customers, Orders, Inventory and Payments module boundaries.
+- `src/Hexagonal`: domain/application ports plus InMemory, SQLite schema and HTTP adapters.
+- `src/Patterns`: focused pattern packages for CQRS, Outbox, Specifications, Result and Repositories.
+- `tests`: xUnit suites for unit, integration, architecture, contract/CLI and security evidence.
+- `docs`: architecture notes, Mermaid diagrams, ADRs and final audit.
 
 ## Release
 
-Target release: `v1.0.0`. This repository does not publish packages to NuGet.org.
+Release `v1.0.0`: https://github.com/diwb/dotnet-architecture-patterns/releases/tag/v1.0.0
+
+Assets: `archtool.zip`, `RELEASE_NOTES.md`, `SHA256SUMS`. This repository does not publish packages to NuGet.org.
