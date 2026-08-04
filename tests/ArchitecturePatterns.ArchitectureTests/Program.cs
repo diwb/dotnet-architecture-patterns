@@ -16,7 +16,7 @@ for (var i = 1; i <= 7; i++)
 for (var i = 1; i <= 7; i++)
     tests.Add(new("Architecture", $"hexagonal application avoids adapters {i}", () => AssertNoReferences(typeof(ICheckoutUseCase).Assembly, hexApplicationForbidden)));
 
-tests.Add(new("Architecture", "composition root is outside clean application", () => AssertNoReferences(typeof(CleanCommerce).Assembly, ["Microsoft.AspNetCore"] )));
+tests.Add(new("Architecture", "composition root is outside clean application", () => AssertNoReferences(typeof(CleanCommerce).Assembly, ["Microsoft.AspNetCore"])));
 
 return await Check.Run(tests);
 
