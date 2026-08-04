@@ -22,9 +22,13 @@ jobs:
       - run: docker compose config
       - run: docker compose build
       - run: docker compose up -d
-      - run: curl --fail --retry 10 --retry-delay 3 http://localhost:8080/health/live
+      - run: sleep 10
+      - run: curl --fail --retry 10 --retry-all-errors --retry-delay 3 --connect-timeout 5 http://localhost:8080/health/live
       - run: dotnet run --project src/ArchitecturePatterns.Cli -- run-scenario checkout --architecture clean --json
-      - run: docker compose down -v
+      - if: failure()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down -v
       - run: pwsh tools/scripts/package.ps1
       - uses: actions/upload-artifact@v4
         with:
