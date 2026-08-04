@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../Hexagonal.Application/Hexagonal.Application.csproj" />
+    <ProjectReference Include="../Hexagonal.Adapters.InMemory/Hexagonal.Adapters.InMemory.csproj" />
+    <ProjectReference Include="../../Shared/ArchitecturePatterns.Observability/ArchitecturePatterns.Observability.csproj" />
+  </ItemGroup>
+</Project>

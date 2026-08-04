@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>archtool</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Shared/ArchitecturePatterns.SharedKernel/ArchitecturePatterns.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

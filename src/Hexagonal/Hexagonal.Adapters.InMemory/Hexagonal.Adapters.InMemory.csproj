@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../Hexagonal.Application/Hexagonal.Application.csproj" />
+    <ProjectReference Include="../../Shared/ArchitecturePatterns.SharedKernel/ArchitecturePatterns.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

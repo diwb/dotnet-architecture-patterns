@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../Hexagonal.Application/Hexagonal.Application.csproj" />
+  </ItemGroup>
+</Project>

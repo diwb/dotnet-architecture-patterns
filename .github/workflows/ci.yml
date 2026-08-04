@@ -1,0 +1,35 @@
+name: ci
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore ArchitecturePatterns.slnx
+      - run: dotnet build ArchitecturePatterns.slnx -c Release --no-restore
+      - run: dotnet format ArchitecturePatterns.slnx --verify-no-changes --verbosity minimal
+      - run: dotnet run --project tests/ArchitecturePatterns.UnitTests -c Release
+      - run: dotnet run --project tests/ArchitecturePatterns.IntegrationTests -c Release
+      - run: dotnet run --project tests/ArchitecturePatterns.ArchitectureTests -c Release
+      - run: dotnet run --project tests/ArchitecturePatterns.ContractTests -c Release
+      - run: dotnet run --project tests/ArchitecturePatterns.SecurityTests -c Release
+      - run: pwsh tools/scripts/coverage-gate.ps1
+      - run: pwsh tools/scripts/check-required-files.ps1
+      - run: pwsh tools/scripts/check-secrets.ps1
+      - run: dotnet list ArchitecturePatterns.slnx package --vulnerable --include-transitive
+      - run: docker compose config
+      - run: docker compose build
+      - run: docker compose up -d
+      - run: dotnet run --project src/ArchitecturePatterns.Cli -- run-scenario checkout --architecture clean --json
+      - run: docker compose down -v
+      - run: pwsh tools/scripts/package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: artifacts/

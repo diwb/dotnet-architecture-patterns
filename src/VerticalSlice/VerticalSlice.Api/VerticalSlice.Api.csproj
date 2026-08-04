@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../../Shared/ArchitecturePatterns.SharedKernel/ArchitecturePatterns.SharedKernel.csproj" />
+    <ProjectReference Include="../../Shared/ArchitecturePatterns.Observability/ArchitecturePatterns.Observability.csproj" />
+  </ItemGroup>
+</Project>

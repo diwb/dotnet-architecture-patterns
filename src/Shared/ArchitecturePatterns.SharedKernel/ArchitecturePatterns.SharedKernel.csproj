@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ArchitecturePatterns.SharedKernel</AssemblyName>
+  </PropertyGroup>
+</Project>

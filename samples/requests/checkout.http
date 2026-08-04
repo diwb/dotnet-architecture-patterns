@@ -1,0 +1,6 @@
+GET http://localhost:8080/health/live
+
+POST http://localhost:8080/customers
+Content-Type: application/json
+
+{"name":"Ada Lovelace","email":"ada@example.test"}

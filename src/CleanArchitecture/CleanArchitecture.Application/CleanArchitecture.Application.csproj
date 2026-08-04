@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../CleanArchitecture.Domain/CleanArchitecture.Domain.csproj" />
+    <ProjectReference Include="../../Shared/ArchitecturePatterns.SharedKernel/ArchitecturePatterns.SharedKernel.csproj" />
+  </ItemGroup>
+</Project>

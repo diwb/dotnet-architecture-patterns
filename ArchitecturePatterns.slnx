@@ -1,0 +1,27 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Project Path="src/Shared/ArchitecturePatterns.SharedKernel/ArchitecturePatterns.SharedKernel.csproj" />
+  <Project Path="src/Shared/ArchitecturePatterns.Observability/ArchitecturePatterns.Observability.csproj" />
+  <Project Path="src/CleanArchitecture/CleanArchitecture.Domain/CleanArchitecture.Domain.csproj" />
+  <Project Path="src/CleanArchitecture/CleanArchitecture.Application/CleanArchitecture.Application.csproj" />
+  <Project Path="src/CleanArchitecture/CleanArchitecture.Infrastructure/CleanArchitecture.Infrastructure.csproj" />
+  <Project Path="src/CleanArchitecture/CleanArchitecture.Api/CleanArchitecture.Api.csproj" />
+  <Project Path="src/VerticalSlice/VerticalSlice.Api/VerticalSlice.Api.csproj" />
+  <Project Path="src/ModularMonolith/ModularMonolith.Host/ModularMonolith.Host.csproj" />
+  <Project Path="src/Hexagonal/Hexagonal.Domain/Hexagonal.Domain.csproj" />
+  <Project Path="src/Hexagonal/Hexagonal.Application/Hexagonal.Application.csproj" />
+  <Project Path="src/Hexagonal/Hexagonal.Adapters.InMemory/Hexagonal.Adapters.InMemory.csproj" />
+  <Project Path="src/Hexagonal/Hexagonal.Adapters.Sqlite/Hexagonal.Adapters.Sqlite.csproj" />
+  <Project Path="src/Hexagonal/Hexagonal.Api/Hexagonal.Api.csproj" />
+  <Project Path="src/Patterns/Patterns.Cqrs/Patterns.Cqrs.csproj" />
+  <Project Path="src/Patterns/Patterns.Outbox/Patterns.Outbox.csproj" />
+  <Project Path="src/Patterns/Patterns.Specifications/Patterns.Specifications.csproj" />
+  <Project Path="src/Patterns/Patterns.Result/Patterns.Result.csproj" />
+  <Project Path="src/Patterns/Patterns.Repositories/Patterns.Repositories.csproj" />
+  <Project Path="src/ArchitecturePatterns.Cli/ArchitecturePatterns.Cli.csproj" />
+  <Project Path="tests/ArchitecturePatterns.UnitTests/ArchitecturePatterns.UnitTests.csproj" />
+  <Project Path="tests/ArchitecturePatterns.IntegrationTests/ArchitecturePatterns.IntegrationTests.csproj" />
+  <Project Path="tests/ArchitecturePatterns.ArchitectureTests/ArchitecturePatterns.ArchitectureTests.csproj" />
+  <Project Path="tests/ArchitecturePatterns.ContractTests/ArchitecturePatterns.ContractTests.csproj" />
+  <Project Path="tests/ArchitecturePatterns.SecurityTests/ArchitecturePatterns.SecurityTests.csproj" />
+</Solution>

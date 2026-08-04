@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../CleanArchitecture.Application/CleanArchitecture.Application.csproj" />
+    <ProjectReference Include="../CleanArchitecture.Infrastructure/CleanArchitecture.Infrastructure.csproj" />
+    <ProjectReference Include="../../Shared/ArchitecturePatterns.Observability/ArchitecturePatterns.Observability.csproj" />
+  </ItemGroup>
+</Project>
